@@ -5,7 +5,7 @@ Maintainer: John Goerzen <jgoerzen@complete.org>
 Stability: Alpha
 Copyright: Copyright (c) 2006 John Goerzen
 Build-Depends: network, unix, parsec, HDBC>=0.99.2,
- HDBC-postgresql>=0.99.2, HDBC-odbc>=0.99.2
+ HDBC-postgresql>=0.99.2, HDBC-odbc>=0.99.2, MissingH>=0.13.0
 
 Executable: blogcvt
 Extensions: ExistentialQuantification, AllowOverlappingInstances,
