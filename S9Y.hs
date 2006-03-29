@@ -41,7 +41,7 @@ writecats dbh catlist =
 writeNodes :: Connection -> [Node] -> String -> Integer -> IO ()
 writeNodes dbh nodes author authorid =
     do sth <- prepare dbh $
-              "INSERT INTO serendipity_entries ((id, title, \"timestamp\", " ++
+              "INSERT INTO serendipity_entries (id, title, \"timestamp\", " ++
               "body, comments, trackbacks, extended, exflag, author, " ++
               "authorid, isdraft, allow_comments, last_modified, " ++
               "moderate_comments) VALUES (?, ?, ?, ?, 0, 0, ?, 0, " ++
