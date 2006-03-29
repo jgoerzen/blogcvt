@@ -101,3 +101,39 @@ getNodeCats :: Connection -> IO [(Integer, Integer)]
 getNodeCats dbh =
     do res <- quickQuery dbh "SELECT DISTINCT nid, tid FROM term_node ORDER BY nid ASC" []
        return $ map (\[nid, tid] -> (fromSql nid, fromSql tid)) res
+
+data Comment =
+   Comment {cid :: Integer,     -- Comment ID
+            cnid :: Integer,     -- Article ID
+            pid :: Integer,     -- Comment's parent comment, or 0 if none
+            subject :: String,
+            cbody :: String,
+            cip :: String,
+            ctimestamp :: Integer,
+            -- look at status, users, thread
+            cname :: String,
+            cmail :: String,
+            curl :: String,
+            cdisablenl2br :: Bool}
+
+getComments :: Connection -> [(String, (String, Bool))] -> IO [Comment]
+getComments dbh filters =
+    do res <- quickQuery dbh ("SELECT cid, nid, pid, subject, comment, hostname, timestamp, name, mail, homepage, format FROM comments WHERE status = 0 ORDER BY cid ASC") []
+       return $ map convcomment res
+    where convcomment [icid, inid, ipid, isubject, icomment, iip, itimestamp,
+                       iname, imail, ihomepage, iformat] =
+             Comment {cid = fromSql icid,
+                      cnid = fromSql inid,
+                      pid = fromSql ipid,
+                      subject = fromSql isubject,
+                      cbody = fromSql icomment,
+                      cip = fromSql iip,
+                      ctimestamp = fromSql itimestamp,
+                      cname = fromSql iname,
+                      cmail = fromSql imail,
+                      curl = fromSql ihomepage,
+                      cdisablenl2br = case lookup (fromSql iformat) filters of
+                                       Nothing -> False
+                                       Just (_, True) -> False
+                                       _ -> True
+                  }
