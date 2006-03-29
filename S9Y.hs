@@ -10,7 +10,7 @@ import Monad
 import qualified Data.Map as Map
 import Text.Printf
 import MissingH.Logging.Logger
-import Drupal(Node(..))
+import Drupal(Node(..), Comment(..))
 
 writecats :: Connection -> [(Int, (String, Int))] -> IO ()
 writecats dbh catlist =
@@ -106,3 +106,32 @@ writeNodeCats dbh nodes cats =
           add0cat sth node =
               do infoM "" $ "Node " ++ show (nid node) ++ ": Adding 0 category"
                  execute sth [toSql (nid node), toSql (0::Integer)]
+
+writeComments :: Connection -> [Comment] -> IO ()
+writeComments dbh comments = 
+    do infoM "" "Loading serendipity_comments table..."
+       sth <- prepare dbh "INSERT INTO serendipity_comments (id, entry_id, parent_id, \"timestamp\", title, author, email, url, ip, body, \"type\", subscribed, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'NORMAL', 'f', 'approved')"
+       executeMany sth (map cmt2tbl comments)
+       finish sth
+       commit dbh
+
+       infoM "" "Updating comment counts..."
+       sth <- prepare dbh "UPDATE serendipity_entries SET comments = comments + 1 WHERE id = ?"
+       executeMany sth (map (\x -> [toSql . cnid $ x]) comments)
+       finish sth
+       commit dbh
+
+       infoM "" $ (show (length comments)) ++ " comments processed."
+
+       
+    where cmt2tbl cmt =
+              [toSql $ cid cmt,
+               toSql $ cnid cmt,
+               toSql $ pid cmt,
+               toSql $ ctimestamp cmt,
+               toSql $ subject cmt,
+               toSql $ cname cmt,
+               toSql $ cmail cmt,
+               toSql $ curl cmt,
+               toSql $ cip cmt,
+               toSql $ cbody cmt]

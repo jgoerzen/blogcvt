@@ -107,13 +107,13 @@ data Comment =
             cnid :: Integer,     -- Article ID
             pid :: Integer,     -- Comment's parent comment, or 0 if none
             subject :: String,
-            cbody :: String,
+            cbody :: Maybe String,
             cip :: String,
             ctimestamp :: Integer,
             -- look at status, users, thread
-            cname :: String,
-            cmail :: String,
-            curl :: String,
+            cname :: Maybe String,
+            cmail :: Maybe String,
+            curl :: Maybe String,
             cdisablenl2br :: Bool}
 
 getComments :: Connection -> [(String, (String, Bool))] -> IO [Comment]
@@ -126,7 +126,7 @@ getComments dbh filters =
                       cnid = fromSql inid,
                       pid = fromSql ipid,
                       subject = fromSql isubject,
-                      cbody = fromSql icomment,
+                      cbody =  fromSql icomment,
                       cip = fromSql iip,
                       ctimestamp = fromSql itimestamp,
                       cname = fromSql iname,

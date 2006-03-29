@@ -28,6 +28,9 @@ main = handleSqlError $
 
        nodecats <- Drupal.getNodeCats srcdbh
        S9Y.writeNodeCats destdbh nodes nodecats
+
+       comments <- Drupal.getComments srcdbh sourceinfo
+       S9Y.writeComments destdbh comments
        
        disconnect srcdbh
        disconnect destdbh
