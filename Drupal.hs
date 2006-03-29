@@ -21,6 +21,10 @@ mine dbh =
        mapM_ (\(id, (name, nl)) -> 
                   printf "Filter %s (%s): Handles newlines: %s\n"
                          id name (show nl)) filters
+
+       cats <- getcats dbh
+       infoM "" "Found categories: "
+       infoM "" (show cats)
        
 
 getfilters :: Connection -> IO [(String, (String, Bool))]
@@ -36,3 +40,11 @@ getfilters dbh =
                                    amap
                     
           islinefilt x = x == delta_linefilt
+
+getcats :: Connection -> IO [(Int, (String, Int))]
+getcats dbh =
+    do res <- quickQuery dbh "select term_data.tid, name, parent from term_data, term_hierarchy where term_data.tid = term_hierarchy.tid" []
+       return $ map (\[tid, name, parent] -> (fromSql tid,
+                                              (fromSql name,
+                                               fromSql parent)
+                                             )
