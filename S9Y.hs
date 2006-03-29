@@ -11,7 +11,7 @@ import qualified Data.Map as Map
 import Text.Printf
 import MissingH.Logging.Logger
 
-writecate :: Connection -> [(Int, (String, Int))] -> IO ()
+writecats :: Connection -> [(Int, (String, Int))] -> IO ()
 writecats dbh catlist =
     do sth <- prepare dbh "INSERT INTO serendipity_category (categoryid, category_name, authorid, category_left, category_right, parentid) VALUES (?, ?, 0, 0, 0, ?)"
        mapM_ (insertcat sth) catlist

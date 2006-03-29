@@ -45,3 +45,5 @@ getcats dbh =
                                               (fromSql name,
                                                fromSql parent)
                                              )
+                    ) res
+                                            
