@@ -14,12 +14,12 @@ main = handleSqlError $
     do updateGlobalLogger "" (setLevel DEBUG)
        infoM "" "Welcome to blogcvt."
        srcdbh <- connectDB "source"
-       destdbh <- connectDB "destination"
-       infoM "" "Connected."
+       infoM "" "Connected to source."
+       --destdbh <- connectDB "destination"
 
        Drupal.mine srcdbh
        disconnect srcdbh
-       disconnect destdbh
+       --disconnect destdbh
 
 
     
