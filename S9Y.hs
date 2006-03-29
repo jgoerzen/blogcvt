@@ -44,7 +44,7 @@ writeNodes dbh nodes author authorid =
               "INSERT INTO serendipity_entries (id, title, \"timestamp\", " ++
               "body, comments, trackbacks, extended, exflag, author, " ++
               "authorid, isdraft, allow_comments, last_modified, " ++
-              "moderate_comments) VALUES (?, ?, ?, ?, 0, 0, ?, 0, " ++
+              "moderate_comments) VALUES (?, ?, ?, ?, 0, 0, '', 0, " ++
               "?, ?, ?, 't', ?, 'f')"
        mapM_ (insertnode sth) nodes
        finish sth
@@ -74,7 +74,6 @@ writeNodes dbh nodes author authorid =
                  execute sth [toSql (nid node),
                               toSql (ntitle node),
                               toSql (ntimestamp node),
-                              toSql (nteaser node),
                               toSql (nbody node),
                               toSql author,
                               toSql authorid,
