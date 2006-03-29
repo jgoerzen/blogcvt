@@ -57,11 +57,17 @@ writeNodes dbh nodes author authorid =
        
        infoM "" "BASE NODE INSERT COMPLETE"
        infoM "" "Setting entry properties..."
-       sth <- prepare dbh "INSERT INTO serendipity_entryproperties (entryid, property, value) VALUES (?, 'ep_access', 'public')"
-       executeMany sth (map (\x -> [toSql (nid x)]) nodes)
+       sth <- prepare dbh "INSERT INTO serendipity_entryproperties (entryid, property, value) VALUES (?, ?, ?)"
+       executeMany sth (concatMap convproperties nodes)
        finish sth
        commit dbh
-       
+
+       infoM "" "Setting read counters..."
+       sth <- prepare dbh "INSERT INTO serendipity_karma (entryid, points, votes, lastvote, visits) VALUES (?, 0, 0, 0, ?)"
+       mapM_ (setreadcount sth) nodes
+       finish sth
+       commit dbh
+
     where insertnode sth node =
               do infoM "" $ "Processing node " ++ show (nid node) ++
                             ", " ++ ntitle node
@@ -74,3 +80,12 @@ writeNodes dbh nodes author authorid =
                               toSql authorid,
                               toSql (nisdraft node),
                               toSql (nmodified node)]
+          setreadcount sth node =
+              do infoM "" $ "Node " ++ show (nid node) ++
+                            ": read count is " ++ show (readcount node)
+                 execute sth [toSql (nid node), toSql (readcount node)]
+          convproperties node =
+              [[toSql (nid node), toSql "ep_access", toSql "public"]] ++
+              if disablenl2br node 
+                 then [[toSql (nid node), toSql "ep_no_nl2br", toSql "true"]]
+                 else []
