@@ -74,8 +74,7 @@ data Node =
                   
 getNodes :: Connection -> [(String, (String, Bool))] -> IO [Node]
 getNodes dbh filters =
-    do seenmv <- newMVar []
-       res <- quickQuery dbh ("SELECT node.nid, title, status, created, " ++ 
+    do res <- quickQuery dbh ("SELECT node.nid, title, status, created, " ++ 
               "teaser, body, changed, format, totalcount " ++
               "FROM node, node_counter " ++
               "WHERE node.nid = node_counter.nid AND " ++
@@ -97,3 +96,8 @@ getNodes dbh filters =
                                      Just (_, True) -> False
                                      _ -> True,
                     readcount = fromSql itotalcount}
+
+getNodeCats :: Connection -> IO [(Integer, Integer)]
+getNodeCats dbh =
+    do res <- quickQuery dbh "SELECT DISTINCT nid, tid FROM term_node ORDER BY nid ASC" []
+       return $ map (\[nid, tid] -> (fromSql nid, fromSql tid)) res
