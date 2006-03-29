@@ -10,6 +10,7 @@ import Monad
 import qualified Data.Map as Map
 import Text.Printf
 import MissingH.Logging.Logger
+import Control.Concurrent.MVar
 
 delta_htmlfilt = "0"
 delta_phpfilt = "1"
@@ -47,3 +48,52 @@ getcats dbh =
                                              )
                     ) res
                                             
+
+{- node notes
+
+node.format matches to filter_formats.format
+
+node.status:
+  1: approved
+  0: unpublished
+
+node.comment: ignore for now
+
+-}
+
+data Node = 
+   Node {nid :: Int,
+         ntitle :: String,
+         ntimestamp :: Integer,
+         nteaser :: String,
+         nbody :: String,
+         nisdraft :: Char,
+         nmodified :: Integer,
+         disablenl2br :: Bool,
+         readcount :: Integer}
+                  
+getNodes :: Connection -> [(String, (String, Bool))] -> IO [Node]
+getNodes dbh filters =
+    do seenmv <- newMVar []
+       res <- quickQuery dbh ("SELECT node.nid, title, status, created, " ++ 
+              "teaser, body, changed, format, totalcount " ++
+              "FROM node, node_counter " ++
+              "WHERE node.nid = node_counter.nid AND " ++
+              "type = 'story' ORDER BY node.nid asc") []
+       return $ map convres res
+    where convres [inid, ititle, istatus, icreated, iteaser, ibody,
+                   ichanged, iformat, itotalcount] =
+              Node {nid = fromSql inid,
+                    ntitle = fromSql ititle,
+                    ntimestamp = fromSql icreated,
+                    nteaser = fromSql iteaser,
+                    nbody = fromSql ibody,
+                    nisdraft = case (fromSql istatus) of
+                                 '1' -> 'f'
+                                 _ -> 't',
+                    nmodified = fromSql ichanged,
+                    disablenl2br = case lookup (fromSql iformat) filters of
+                                     Nothing -> False
+                                     Just (_, True) -> False
+                                     _ -> True,
+                    readcount = fromSql itotalcount}
