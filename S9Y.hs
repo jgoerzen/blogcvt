@@ -122,6 +122,10 @@ writeComments dbh comments =
        commit dbh
 
        infoM "" $ (show (length comments)) ++ " comments processed."
+       let newmax = maximum (map cid comments) + 1
+       infoM "" $ "Setting cid counter to " ++ show newmax
+       run dbh "SELECT pg_catalog.setval(pg_catalog.pg_get_serial_sequence('serendipity_comments', 'id'), ?, true)" [toSql newmax]
+       commit dbh
 
        
     where cmt2tbl cmt =
