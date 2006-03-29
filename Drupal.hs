@@ -62,7 +62,7 @@ node.comment: ignore for now
 -}
 
 data Node = 
-   Node {nid :: Int,
+   Node {nid :: Integer,
          ntitle :: String,
          ntimestamp :: Integer,
          nteaser :: String,

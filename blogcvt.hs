@@ -26,7 +26,9 @@ main = handleSqlError $
        nodes <- Drupal.getNodes srcdbh sourceinfo
        S9Y.writeNodes destdbh nodes "jgoerzen" 1
 
-
+       nodecats <- Drupal.getNodeCats srcdbh
+       S9Y.writeNodeCats destdbh nodes nodecats
+       
        disconnect srcdbh
        disconnect destdbh
 
