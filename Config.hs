@@ -28,3 +28,4 @@ connectDB section =
          "odbc" -> connectODBC connstring
          "postgresql" -> connectPostgreSQL connstring
          x -> fail $ "Unrecognized dbtype " ++ x
+
