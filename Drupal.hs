@@ -22,10 +22,7 @@ mine dbh =
                   printf "Filter %s (%s): Handles newlines: %s\n"
                          id name (show nl)) filters
 
-       cats <- getcats dbh
-       infoM "" "Found categories: "
-       infoM "" (show cats)
-       
+       return filters
 
 getfilters :: Connection -> IO [(String, (String, Bool))]
 getfilters dbh =

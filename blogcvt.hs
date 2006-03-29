@@ -9,17 +9,22 @@ import Config
 import Database.HDBC
 import qualified Drupal
 import MissingH.Logging.Logger
+import S9Y
 
 main = handleSqlError $
     do updateGlobalLogger "" (setLevel DEBUG)
        infoM "" "Welcome to blogcvt."
        srcdbh <- connectDB "source"
        infoM "" "Connected to source."
-       --destdbh <- connectDB "destination"
+       destdbh <- connectDB "destination"
 
-       Drupal.mine srcdbh
+       sourceinfo <- Drupal.mine srcdbh
+
+       cats <- getcats srcdbh
+       writecats destdbh cats
+
        disconnect srcdbh
-       --disconnect destdbh
+       disconnect destdbh
 
 
     
