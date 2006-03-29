@@ -60,6 +60,7 @@ writeNodes dbh nodes author authorid =
        sth <- prepare dbh "INSERT INTO serendipity_entryproperties (entryid, property, value) VALUES (?, 'ep_access', 'public')"
        executeMany sth (map (\x -> [toSql (nid x)]) nodes)
        finish sth
+       commit dbh
        
     where insertnode sth node =
               do infoM "" $ "Processing node " ++ show (nid node) ++
